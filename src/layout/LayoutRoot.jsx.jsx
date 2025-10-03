@@ -12,21 +12,42 @@ export default function LayoutRoot() {
   const categoriesRef = useRef(null);
 
   useEffect(() => {
-    const calc = () => {
-      const h1 = headerRef.current?.getBoundingClientRect().height || 0;
-      const h2 = categoriesRef.current?.getBoundingClientRect().height || 0;
-      const total = h1 + h2; // tổng chiều cao 2 thanh phía trên
-      document.documentElement.style.setProperty("--stacked-header", `${total}px`);
+    let raf = null;
+
+    const isStacked = (el) => {
+      if (!el) return false;
+      const root = el.firstElementChild || el; // phần tử thực tế render
+      const pos = getComputedStyle(root).position;
+      return pos === "fixed" || pos === "sticky";
     };
+
+    const calc = () => {
+      raf = requestAnimationFrame(() => {
+        const h1 = headerRef.current?.getBoundingClientRect().height || 0;
+        const h2 = categoriesRef.current?.getBoundingClientRect().height || 0;
+
+        const total =
+          (isStacked(headerRef.current) ? h1 : 0) +
+          (isStacked(categoriesRef.current) ? h2 : 0);
+
+        document.documentElement.style.setProperty(
+          "--stacked-header",
+          `${total}px`
+        );
+      });
+    };
+
     calc();
     window.addEventListener("resize", calc);
-    return () => window.removeEventListener("resize", calc);
+    return () => {
+      window.removeEventListener("resize", calc);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   return (
     <Layout className="min-h-screen bg-gray-50 text-gray-900">
-      {/* Nếu Header/CategoryGrid là fixed/sticky thì cứ để như cũ;
-          ta đo chiều cao thật của chúng rồi đẩy Content xuống bằng padding-top */}
+      {/* 2 khối trên */}
       <div ref={headerRef}>
         <Header />
       </div>
@@ -34,10 +55,8 @@ export default function LayoutRoot() {
         <CategoryGrid />
       </div>
 
-      <Content
-        // fallback 128px nếu biến chưa được set (lần render đầu)
-        className="pt-[var(--stacked-header,128px)]"
-      >
+      {/* Fallback = 0 để không hở khi chưa set biến */}
+      <Content className="pt-[var(--stacked-header,0px)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <Outlet />
         </div>

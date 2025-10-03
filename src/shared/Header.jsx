@@ -17,7 +17,7 @@ import {
   SearchOutlined,
   MenuOutlined,
 } from "@ant-design/icons";
-
+import { Link } from "react-router-dom";
 const { Header } = Layout;
 
 const navItems = [
@@ -103,11 +103,13 @@ export default function AppHeader() {
                 icon={<UserOutlined />}
               />
             </Dropdown>
-            <Badge count={2} size="small" offset={[0, 6]}>
-              <ShoppingCartOutlined
-                style={{ fontSize: 20, color: "#fff", cursor: "pointer" }}
-              />
-            </Badge>
+            <Link to="/cart" style={{ display: "inline-block" }}>
+              <Badge count={2} size="small" offset={[0, 6]}>
+                <ShoppingCartOutlined
+                  style={{ fontSize: 20, color: "#fff", cursor: "pointer" }}
+                />
+              </Badge>
+            </Link>
             <Button
               type="text"
               icon={<MenuOutlined />}
