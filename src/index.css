@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+/* Căn giữa các mục trong Menu horizontal */
+.category-menu-center .ant-menu-overflow {
+    justify-content: center !important;
+  }
+  
+  /* Khoảng cách đều giữa các mục */
+  .category-menu-center .ant-menu-item,
+  .category-menu-center .ant-menu-submenu {
+    padding: 0 14px !important;
+  }
+  
+  /* Hover nhẹ để nhìn “nét” hơn */
+  .category-menu-center .ant-menu-item:hover,
+  .category-menu-center .ant-menu-submenu:hover {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+  }
+  
+  /* Căn padding cho tiêu đề submenu */
+  .category-menu-center .ant-menu-submenu-title {
+    padding: 0 14px !important;
+    border-radius: 8px;
+  }
+  
