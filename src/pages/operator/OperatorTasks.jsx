@@ -85,10 +85,13 @@ export default function OperatorTasks() {
       status: r.status,
       workType: validTypes.includes(r.workType) ? r.workType : undefined,
       qcPhase: r.workType === "Kiểm tra thiết bị" ? r.qcPhase : undefined,
-      // Hiển thị orderId nếu là Giao hàng, hoặc là Kiểm tra thiết bị (đã có qcPhase)
+      // Mã đơn: xuất hiện khi Giao hàng, Thu hồi, hoặc Kiểm tra thiết bị (đã chọn pre/post)
       orderId:
         (r.workType === "Giao hàng" ||
-          (r.workType === "Kiểm tra thiết bị" && r.qcPhase)) ? r.orderId : undefined,
+         r.workType === "Thu hồi" ||
+         (r.workType === "Kiểm tra thiết bị" && r.qcPhase))
+          ? r.orderId
+          : undefined,
       createdAt: r.createdAt ? dayjs(r.createdAt) : dayjs(),
     });
     setEditing(r);
@@ -107,10 +110,11 @@ export default function OperatorTasks() {
 
   const submit = (vals) => {
     // Cần mã đơn khi:
-    // - workType = "Giao hàng"
+    // - workType = "Giao hàng" hoặc "Thu hồi"
     // - hoặc workType = "Kiểm tra thiết bị" và đã chọn qcPhase (trước/sau khi giao)
     const needOrderId =
       vals.workType === "Giao hàng" ||
+      vals.workType === "Thu hồi" ||
       (vals.workType === "Kiểm tra thiết bị" && !!vals.qcPhase);
 
     const payload = {
@@ -189,6 +193,7 @@ export default function OperatorTasks() {
       width: 180,
       render: (v, r) =>
         (r.workType === "Giao hàng" ||
+          r.workType === "Thu hồi" ||
           (r.workType === "Kiểm tra thiết bị" && r.qcPhase)) && v
           ? v
           : "-",
@@ -234,9 +239,9 @@ export default function OperatorTasks() {
       >
         <Form form={form} layout="vertical" onFinish={submit}>
           <Form.Item
-            label="Tiêu đề"
+            label="Mô tả"
             name="title"
-            rules={[{ required: true, message: "Vui lòng nhập tiêu đề" }]}
+            rules={[{ required: true, message: "Vui lòng nhập Mô tả" }]}
           >
             <Input placeholder="Nhập mô tả ngắn gọn" />
           </Form.Item>
@@ -317,9 +322,11 @@ export default function OperatorTasks() {
 
           {/* MÃ ĐƠN HÀNG:
               - Hiện khi Giao hàng
+              - Hiện khi Thu hồi
               - Hoặc khi Kiểm tra thiết bị MÀ đã chọn Loại kiểm tra (pre/post)
           */}
           {(currentType === "Giao hàng" ||
+            currentType === "Thu hồi" ||
             (currentType === "Kiểm tra thiết bị" && currentQcPhase)) && (
             <Form.Item
               label="Mã đơn hàng"

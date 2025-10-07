@@ -1,31 +1,16 @@
 // src/pages/DeviceDetail.jsx
 import React, { useMemo, useState } from "react";
 import {
-  Row,
-  Col,
-  Card,
-  Typography,
-  Breadcrumb,
-  Tag,
-  Radio,
-  Space,
-  Divider,
-  InputNumber,
-  Button,
-  Image,
-  Tabs,
-  Tooltip,
-  Rate,
+  Row, Col, Card, Typography, Breadcrumb, Tag, Space, Divider,
+  InputNumber, Button, Image, Tabs, Tooltip, Rate, DatePicker
 } from "antd";
-import {
-  ShoppingCartOutlined,
-  HeartOutlined,
-  ShareAltOutlined,
-} from "@ant-design/icons";
+import { ShoppingCartOutlined, HeartOutlined, ShareAltOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 const { Title, Text, Paragraph } = Typography;
+const { RangePicker } = DatePicker;
 
-// Mock data (thay bằng API thật khi bạn có)
+// Mock data
 const product = {
   id: "ps5-combo-tv",
   name: "Cho thuê combo Playstation 5 kèm TV",
@@ -41,9 +26,7 @@ const product = {
     { key: 'PS5 + TV 75" 4K', disabled: false, priceFactor: 1.4 },
     { key: 'PS5 + TV 98" 4K', disabled: true, priceFactor: 2 },
   ],
-  rentalDays: [1, 2, 3, 4, 5, 6, 7, 14, 30],
   images: [
-    "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1600&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1600&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1600&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1600&auto=format&fit=crop",
@@ -67,13 +50,21 @@ Miễn phí tư vấn setup, hỗ trợ giao lắp tại nội thành. Thiết b
 
 export default function DeviceDetail() {
   const [variant, setVariant] = useState(product.variants[0].key);
-  const [days, setDays] = useState(product.rentalDays[0]);
+  const [dateRange, setDateRange] = useState([]); // [start, end]
   const [qty, setQty] = useState(1);
 
   const currentVariant = useMemo(
     () => product.variants.find((v) => v.key === variant),
     [variant]
   );
+
+  // tính số ngày từ khoảng ngày (>= 1)
+  const days = useMemo(() => {
+    const [start, end] = dateRange || [];
+    if (!start || !end) return 1;
+    const diff = dayjs(end).startOf("day").diff(dayjs(start).startOf("day"), "day");
+    return Math.max(1, diff || 1);
+  }, [dateRange]);
 
   const subtotal = useMemo(() => {
     const factor = currentVariant?.priceFactor ?? 1;
@@ -87,6 +78,8 @@ export default function DeviceDetail() {
     console.log({
       productId: product.id,
       variant,
+      startDate: dateRange?.[0]?.toISOString?.() || null,
+      endDate: dateRange?.[1]?.toISOString?.() || null,
       days,
       qty,
       subtotal,
@@ -95,9 +88,8 @@ export default function DeviceDetail() {
   };
 
   return (
-    // KHÔNG padding-top ở đây; LayoutRoot đã chừa chỗ cho header rồi
     <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <Breadcrumb
           items={[
             { title: <a href="/">Trang chủ</a> },
@@ -108,20 +100,20 @@ export default function DeviceDetail() {
         />
 
         <Row gutter={[24, 24]}>
-          {/* Gallery trái */}
+          {/* Gallery trái (chỉ 3 ảnh, padding/height nhẹ hơn) */}
           <Col xs={24} lg={14}>
-            <Card bordered className="rounded-xl">
+            <Card bordered className="rounded-xl" bodyStyle={{ padding: 14 }}>
               <Image.PreviewGroup>
-                <Row gutter={[12, 12]}>
-                  {product.images.map((src, idx) => (
+                <Row gutter={[10, 10]}>
+                  {product.images.slice(0, 3).map((src, idx) => (
                     <Col span={idx === 0 ? 24 : 12} key={idx}>
                       <div className="overflow-hidden rounded-lg">
                         <Image
                           src={src}
                           alt={`${product.name} ${idx + 1}`}
                           width="100%"
-                          height={idx === 0 ? 420 : 220}
-                          style={{ objectFit: "cover", borderRadius: 12 }}
+                          height={idx === 0 ? 360 : 180}
+                          style={{ objectFit: "cover", borderRadius: 10 }}
                           placeholder
                         />
                       </div>
@@ -137,16 +129,8 @@ export default function DeviceDetail() {
             <Card
               bordered
               className="rounded-xl"
-              style={{ position: "sticky", top: 16 }} // chỉ cách đỉnh 16px
-              bodyStyle={{ padding: 20 }}
-              actions={[
-                <Tooltip title="Yêu thích" key="fav">
-                  <HeartOutlined />
-                </Tooltip>,
-                <Tooltip title="Chia sẻ" key="share">
-                  <ShareAltOutlined />
-                </Tooltip>,
-              ]}
+              style={{ position: "sticky", top: 16 }}
+              bodyStyle={{ padding: 16 }}
             >
               <div className="mb-2">
                 <Title level={3} style={{ marginBottom: 4 }}>
@@ -158,8 +142,6 @@ export default function DeviceDetail() {
               <div className="grid grid-cols-2 gap-y-1 text-sm mb-3">
                 <Text type="secondary">Thương hiệu:</Text>
                 <Text strong>{product.brand}</Text>
-                <Text type="secondary">SKU:</Text>
-                <Text>{product.sku}</Text>
                 <Text type="secondary">Loại sản phẩm:</Text>
                 <Text>{product.category}</Text>
                 <Text type="secondary">Đánh giá:</Text>
@@ -171,9 +153,7 @@ export default function DeviceDetail() {
 
               <Space size={[8, 8]} wrap className="mb-3">
                 {product.tags.map((t) => (
-                  <Tag key={t} color="blue">
-                    {t}
-                  </Tag>
+                  <Tag key={t} color="blue">{t}</Tag>
                 ))}
               </Space>
 
@@ -185,59 +165,45 @@ export default function DeviceDetail() {
                   Giá / ngày (theo cấu hình)
                 </Text>
                 <Title level={3} style={{ color: "#ff4d4f", margin: 0 }}>
-                  {formatVND(
-                    product.pricePerDay * (currentVariant?.priceFactor ?? 1)
-                  )}
+                  {formatVND(product.pricePerDay * (currentVariant?.priceFactor ?? 1))}
                 </Title>
               </div>
 
               {/* Kiểu dáng */}
               <div className="mb-3">
-                <Text strong className="block mb-2">
-                  Kiểu dáng:
-                </Text>
-                <Radio.Group
-                  onChange={(e) => setVariant(e.target.value)}
-                  value={variant}
-                >
-                  <Space direction="vertical" size={8}>
-                    {product.variants.map((v) => (
-                      <Radio key={v.key} value={v.key} disabled={v.disabled}>
-                        {v.key}
-                        {v.disabled && (
-                          <Tag color="default" className="ml-2">
-                            Hết hàng
-                          </Tag>
-                        )}
-                      </Radio>
-                    ))}
-                  </Space>
-                </Radio.Group>
+                <Text strong className="block mb-2">Kiểu dáng:</Text>
+                <Space direction="vertical" size={8}>
+                  {product.variants.map((v) => (
+                    <Button
+                      key={v.key}
+                      type={variant === v.key ? "primary" : "default"}
+                      ghost={variant !== v.key}
+                      disabled={v.disabled}
+                      onClick={() => setVariant(v.key)}
+                    >
+                      {v.key} {v.disabled && <Tag color="default" className="ml-2">Hết hàng</Tag>}
+                    </Button>
+                  ))}
+                </Space>
               </div>
 
-              {/* Ngày thuê */}
+              {/* Khoảng ngày thuê */}
               <div className="mb-3">
-                <Text strong className="block mb-2">
-                  Ngày thuê:
+                <Text strong className="block mb-2">Thời gian thuê:</Text>
+                <RangePicker
+                  style={{ width: "100%" }}
+                  format="DD/MM/YYYY"
+                  disabledDate={(current) => current && current < dayjs().startOf("day")}
+                  onChange={(vals) => setDateRange(vals)}
+                />
+                <Text type="secondary" className="block mt-1">
+                  Số ngày tính tiền: <Text strong>{days}</Text>
                 </Text>
-                <Radio.Group onChange={(e) => setDays(e.target.value)} value={days}>
-                  <Space wrap>
-                    {product.rentalDays.map((d) => (
-                      <Radio.Button key={d} value={d} className="!mb-2">
-                        {d} NGÀY
-                      </Radio.Button>
-                    ))}
-                  </Space>
-                </Radio.Group>
               </div>
 
               {/* Số lượng + thêm giỏ */}
-              <div className="mb-3 flex items-center gap-3">
-                <InputNumber
-                  min={1}
-                  value={qty}
-                  onChange={(v) => setQty(v || 1)}
-                />
+              <div className="mb-1 flex items-center gap-3">
+                <InputNumber min={1} value={qty} onChange={(v) => setQty(v || 1)} />
                 <Button
                   type="primary"
                   size="large"
@@ -255,10 +221,10 @@ export default function DeviceDetail() {
           </Col>
         </Row>
 
-        {/* Tabs dưới */}
+        {/* Tabs dưới (padding nhỏ hơn) */}
         <Row gutter={[24, 24]} className="mt-4">
           <Col xs={24} lg={14}>
-            <Card bordered className="rounded-xl">
+            <Card bordered className="rounded-xl" bodyStyle={{ padding: 16 }}>
               <Tabs
                 defaultActiveKey="desc"
                 items={[
@@ -277,13 +243,8 @@ export default function DeviceDetail() {
                     children: (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {product.specs.map((s) => (
-                          <div
-                            key={s.k}
-                            className="rounded-lg border border-slate-200 p-3"
-                          >
-                            <Text type="secondary" className="block">
-                              {s.k}
-                            </Text>
+                          <div key={s.k} className="rounded-lg border border-slate-200 p-3">
+                            <Text type="secondary" className="block">{s.k}</Text>
                             <Text strong>{s.v}</Text>
                           </div>
                         ))}
@@ -295,9 +256,7 @@ export default function DeviceDetail() {
                     label: "Chính sách",
                     children: (
                       <ul className="list-disc pl-5 space-y-2">
-                        {product.policy.map((p, i) => (
-                          <li key={i}>{p}</li>
-                        ))}
+                        {product.policy.map((p, i) => <li key={i}>{p}</li>)}
                       </ul>
                     ),
                   },

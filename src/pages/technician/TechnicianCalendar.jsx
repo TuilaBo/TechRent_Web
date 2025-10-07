@@ -29,7 +29,7 @@ const { Dragger } = Upload;
 
 /** ----- Loại task & màu sắc ----- */
 const TYPES = {
-  QC: { color: "blue", label: "CHECK QC" },
+  QC: { color: "blue", label: "CHECK QC outbound" },
   HANDOVER_CHECK: { color: "geekblue", label: "CHECK BIÊN BẢN" },
   MAINTAIN: { color: "orange", label: "BẢO TRÌ THIẾT BỊ" },
   DELIVERY: { color: "green", label: "ĐI GIAO THIẾT BỊ" },
@@ -186,11 +186,6 @@ export default function TechnicianCalendar() {
             >
               Thực hiện QC
             </Button>
-            {t.orderId && (
-              <Button onClick={() => message.info("Mở trang chi tiết đơn (UI)")}>
-                Xem đơn hàng
-              </Button>
-            )}
           </Space>
         </>
       );

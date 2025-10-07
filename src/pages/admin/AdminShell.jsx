@@ -64,6 +64,7 @@ export default function AdminShell() {
             { key: "products", icon: <ShoppingCartOutlined />, label: <Link to="/admin/products">Sản phẩm</Link> },
             { key: "kyc", icon: <SecurityScanOutlined />, label: <Link to="/admin/kyc">KYC</Link> },
             { key: "maintenance", icon: <DatabaseOutlined />, label: <Link to="/admin/maintenance">Bảo trì</Link> },
+            { key: "accounts", icon: <TeamOutlined />, label: <Link to="/admin/accounts">Tài khoản</Link> },
             { key: "settings", icon: <SettingOutlined />, label: <Link to="/admin/settings">Cài đặt</Link> },
           ]}
         />

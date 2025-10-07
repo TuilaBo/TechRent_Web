@@ -11,6 +11,7 @@ import MyOrders from "./pages/orders/MyOrders.jsx";
 import CartPage from "./pages/cart/CartPage.jsx";
 import CheckoutPage from "./pages/cart/CheckoutPage.jsx";
 import KycPage from "./pages/KYC/KycPage.jsx";
+import CustomerProfile from "./pages/CustomerProfile.jsx";
 
 import AdminShell from "./pages/admin/AdminShell.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
@@ -18,7 +19,7 @@ import AdminOrders from "./pages/admin/AdminOrders.jsx";
 import AdminProducts from "./pages/admin/AdminProducts.jsx";
 import AdminMaintenancePlanner from "./pages/admin/AdminMaintenancePlanner.jsx";
 import AdminKyc from "./pages/admin/AdminKyc.jsx";
-
+import AdminAccounts from "./pages/admin/AdminAccounts.jsx";
 
 import OperatorShell from "./pages/operator/OperatorShell.jsx";
 import OperatorDashboard from "./pages/operator/OperatorDashboard.jsx";
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="cart" element={<CartPage />} />
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="kyc" element={<KycPage />} />
+        <Route path="profile" element={<CustomerProfile />} />
       </Route>
 
       {/* ====== ADMIN (KHÔNG dùng LayoutRoot) ====== */}
@@ -52,6 +54,7 @@ export default function App() {
         <Route path="products" element={<AdminProducts />} />
         <Route path="maintenance" element={<AdminMaintenancePlanner />} />
         <Route path="kyc" element={<AdminKyc />} />
+        <Route path="accounts" element={<AdminAccounts />} />
       </Route>
       {/* ====== OPERATOR (KHÔNG dùng LayoutRoot) ====== */}
       <Route path="/operator" element={<OperatorShell />}>

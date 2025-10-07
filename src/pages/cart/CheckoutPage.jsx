@@ -409,7 +409,7 @@ export default function CheckoutPage() {
 
                 {/* TIỀN CỌC */}
                 <div className="flex justify-between">
-                  <Text>Tiền cọc (30%)</Text>
+                  <Text>Tiền cọc</Text>
                   <Text strong>{formatVND(totals.deposit)}</Text>
                 </div>
               </div>

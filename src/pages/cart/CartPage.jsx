@@ -295,7 +295,7 @@ export default function CartPage() {
                   <Text strong>{formatVND(totals.subtotal)}</Text>
                 </div>
                 <div className="flex items-center justify-between">
-                  <Text>Tiền cọc ({Math.round(DEPOSIT_RATE * 100)}%)</Text>
+                  <Text>Tiền cọc</Text>
                   <Text strong>{formatVND(totals.deposit)}</Text>
                 </div>
               </div>
