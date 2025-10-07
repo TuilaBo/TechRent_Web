@@ -35,29 +35,29 @@ const INITIAL_ITEMS = [
     name: "Cho thuê bộ Ghế Lái Xe Giả Lập",
     image:
       "https://images.unsplash.com/photo-1584156584582-461f6ec49a2b?q=80&w=1200&auto=format&fit=crop",
-    dailyPrice: 2500000, // giá/1 ngày sau giảm
-    compareAtPrice: 2625000, // giá gốc (gạch)
+    dailyPrice: 2_500_000, // giá/1 ngày sau giảm
+    compareAtPrice: 2_625_000, // giá gốc (gạch)
     days: 1,
     qty: 1,
     note: "Kèm màn hình 32inch 4K / 1 ngày",
   },
 ];
 
+// TỶ LỆ CỌC (mock)
+const DEPOSIT_RATE = 0.3;
+
 export default function CartPage() {
   const navigate = useNavigate();
   const [items, setItems] = useState(INITIAL_ITEMS);
-  const [customerNote, setCustomerNote] = useState("");
 
   const totals = useMemo(() => {
-    const sub = items.reduce(
+    const subtotal = items.reduce(
       (sum, it) => sum + it.dailyPrice * it.days * it.qty,
       0
     );
-    // nếu cần tính phí khác => cộng thêm tại đây
-    return {
-      subtotal: sub,
-      grandTotal: sub,
-    };
+    const deposit = Math.round(subtotal * DEPOSIT_RATE);
+    const grandTotal = subtotal + deposit; // Tổng = tạm tính + cọc
+    return { subtotal, deposit, grandTotal };
   }, [items]);
 
   const updateItem = (id, patch) => {
@@ -75,9 +75,8 @@ export default function CartPage() {
       message.warning("Giỏ hàng đang trống.");
       return;
     }
-    // TODO: điều hướng sang trang thanh toán / hoặc gọi API tạo đơn
     message.success("Đi tới trang thanh toán…");
-    navigate("/checkout"); // sửa route theo app của bạn
+    navigate("/checkout");
   };
 
   return (
@@ -255,20 +254,6 @@ export default function CartPage() {
             </Card>
 
             <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-              <Col xs={24} md={14}>
-                <Card
-                  title="Ghi chú đơn hàng"
-                  className="rounded-xl"
-                  bodyStyle={{ padding: 16 }}
-                >
-                  <TextArea
-                    rows={6}
-                    placeholder="Ví dụ: giao buổi chiều, hỗ trợ setup tại chỗ…"
-                    value={customerNote}
-                    onChange={(e) => setCustomerNote(e.target.value)}
-                  />
-                </Card>
-              </Col>
               <Col xs={24} md={10}>
                 <Card
                   title="Quy trình thuê"
@@ -291,23 +276,41 @@ export default function CartPage() {
               bordered
               className="rounded-xl"
               bodyStyle={{ padding: 16 }}
-              title={<Title level={4} style={{ margin: 0, color: "#1677ff" }}>Thông tin đơn hàng</Title>}
+              title={
+                <Title level={4} style={{ margin: 0, color: "#1677ff" }}>
+                  Thông tin đơn hàng
+                </Title>
+              }
               style={{
                 position: "sticky",
                 top: "calc(var(--stacked-header,0px) + 16px)",
               }}
             >
               <Divider style={{ marginTop: 8 }} />
+
+              {/* Breakdown */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Text>Tạm tính</Text>
+                  <Text strong>{formatVND(totals.subtotal)}</Text>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Text>Tiền cọc ({Math.round(DEPOSIT_RATE * 100)}%)</Text>
+                  <Text strong>{formatVND(totals.deposit)}</Text>
+                </div>
+              </div>
+
+              <Divider />
+
               <div className="flex items-center justify-between">
-                <Text strong>Tổng tiền:</Text>
+                <Text strong>Tổng cộng</Text>
                 <Title level={2} style={{ margin: 0, color: "#ff4d4f" }}>
                   {formatVND(totals.grandTotal)}
                 </Title>
               </div>
 
               <Paragraph type="secondary" style={{ marginTop: 12 }}>
-                Phí vận chuyển sẽ được tính ở trang thanh toán. Bạn cũng có thể
-                nhập mã giảm giá ở trang thanh toán.
+                Tiền cọc sẽ được hoàn lại sau khi trả thiết bị đúng điều kiện.
               </Paragraph>
 
               <Button

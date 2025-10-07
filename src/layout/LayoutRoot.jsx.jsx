@@ -16,7 +16,7 @@ export default function LayoutRoot() {
 
     const isStacked = (el) => {
       if (!el) return false;
-      const root = el.firstElementChild || el; // phần tử thực tế render
+      const root = el.firstElementChild || el;
       const pos = getComputedStyle(root).position;
       return pos === "fixed" || pos === "sticky";
     };
@@ -30,10 +30,8 @@ export default function LayoutRoot() {
           (isStacked(headerRef.current) ? h1 : 0) +
           (isStacked(categoriesRef.current) ? h2 : 0);
 
-        document.documentElement.style.setProperty(
-          "--stacked-header",
-          `${total}px`
-        );
+        // set biến toàn cục
+        document.documentElement.style.setProperty("--stacked-header", `${total}px`);
       });
     };
 
@@ -47,7 +45,6 @@ export default function LayoutRoot() {
 
   return (
     <Layout className="min-h-screen bg-gray-50 text-gray-900">
-      {/* 2 khối trên */}
       <div ref={headerRef}>
         <Header />
       </div>
@@ -55,8 +52,14 @@ export default function LayoutRoot() {
         <CategoryGrid />
       </div>
 
-      {/* Fallback = 0 để không hở khi chưa set biến */}
-      <Content className="pt-[var(--stacked-header,0px)]">
+      {/* DÙNG calc() TRỰC TIẾP Ở ĐÂY:
+         - Kéo hero lên 12px: subtract 12px
+         - Dùng max() để không bị âm khi chưa set biến (fallback 0) */}
+      <Content
+        style={{
+          paddingTop: "max(0px, calc(var(--stacked-header, 0px) - 20px))",
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <Outlet />
         </div>

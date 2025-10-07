@@ -15,13 +15,14 @@ import {
   List,
   Avatar,
   Badge,
+  DatePicker,
   message,
 } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
-// --- MOCK giỏ hàng: thay bằng state/Redux/API của bạn ---
+// --- MOCK giỏ hàng ---
 const CART = [
   {
     id: "chair-sim",
@@ -29,19 +30,18 @@ const CART = [
     note: "Kèm màn hình 32inch 4K / 1 ngày",
     image:
       "https://images.unsplash.com/photo-1584156584582-461f6ec49a2b?q=80&w=1200&auto=format&fit=crop",
-    dailyPrice: 2500000,
+    dailyPrice: 2_500_000,
     days: 1,
     qty: 1,
   },
 ];
 
-// --- MOCK địa lý tối giản (có thể thay bằng API tỉnh/TP) ---
+// --- Địa lý mock ---
 const PROVINCES = [
   { value: "HCM", label: "TP. Hồ Chí Minh" },
   { value: "HN", label: "Hà Nội" },
   { value: "DN", label: "Đà Nẵng" },
 ];
-
 const DISTRICTS = {
   HCM: [
     { value: "Q1", label: "Quận 1" },
@@ -57,7 +57,6 @@ const DISTRICTS = {
     { value: "ST", label: "Sơn Trà" },
   ],
 };
-
 const WARDS = {
   Q1: [
     { value: "PBenNghe", label: "Phường Bến Nghé" },
@@ -93,6 +92,9 @@ function formatVND(n) {
   return n.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 }
 
+// TỶ LỆ CỌC (mock): 30% tạm tính
+const DEPOSIT_RATE = 0.3;
+
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -108,22 +110,23 @@ export default function CheckoutPage() {
       0
     );
 
-    // Phí vận chuyển mẫu:
-    // - Nhận tại cửa hàng: 0
-    // - Giao nội thành HCM/HN/ĐN: 50k
-    // - Khác: 80k (vì mock nên chỉ 3 TP → mặc định 50k)
-    let shipping = shippingMethod === "pickup" ? 0 : 50000;
+    // KHÔNG tính phí vận chuyển
+    const shipping = 0;
 
     const discount = couponApplied?.amount || 0;
 
-    const grand = Math.max(0, subtotal + shipping - discount);
+    // Tiền cọc (mock = 30% tạm tính). Nếu bạn có cọc theo từng sản phẩm,
+    // hãy tính riêng per item rồi cộng lại.
+    const deposit = Math.round(subtotal * DEPOSIT_RATE);
 
-    return { subtotal, shipping, discount, grand };
-  }, [shippingMethod, couponApplied]);
+    // Tổng cộng: tạm tính + cọc - giảm
+    const grand = Math.max(0, subtotal + deposit - discount);
+
+    return { subtotal, shipping, discount, deposit, grand };
+  }, [couponApplied]);
 
   const applyCoupon = () => {
     if (!coupon) return;
-    // MOCK: nếu mã "GIAM100K" thì giảm 100k
     if (coupon.trim().toUpperCase() === "GIAM100K") {
       setCouponApplied({ code: "GIAM100K", amount: 100000 });
       message.success("Áp dụng mã giảm giá thành công.");
@@ -134,7 +137,6 @@ export default function CheckoutPage() {
   };
 
   const onFinish = (values) => {
-    // Gom dữ liệu & điều hướng tới trang chọn phương thức thanh toán
     const payload = {
       contact: {
         fullName: values.fullName,
@@ -143,6 +145,7 @@ export default function CheckoutPage() {
       },
       shipping: {
         method: shippingMethod,
+        receiveAt: values.receiveAt?.toISOString(), // THỜI GIAN NHẬN HÀNG
         address:
           shippingMethod === "delivery"
             ? {
@@ -159,9 +162,9 @@ export default function CheckoutPage() {
     };
 
     console.log("Checkout payload:", payload);
-    message.success("Thông tin giao hàng đã lưu. Chuyển tới thanh toán…");
-    // TODO: navigate tới /payment và truyền state/payload
-    navigate("/payment", { state: payload });
+    message.success("Đã lưu thông tin. Chuyển tới bước ký hợp đồng…");
+    // Sang trang ký hợp đồng
+    navigate("/contract", { state: payload });
   };
 
   const provinceValue = Form.useWatch("province", form);
@@ -174,7 +177,7 @@ export default function CheckoutPage() {
           items={[
             { title: <Link to="/cart">Giỏ hàng</Link> },
             { title: "Thông tin giao hàng" },
-            { title: "Phương thức thanh toán" },
+            { title: "Ký hợp đồng" },
           ]}
           className="mb-2"
         />
@@ -183,14 +186,13 @@ export default function CheckoutPage() {
           {/* LEFT: Form giao hàng */}
           <Col xs={24} lg={14}>
             <Title level={2} style={{ marginBottom: 16 }}>
-              Thuê Nhanh
+              TechRent
             </Title>
 
             <Card bordered className="rounded-xl" bodyStyle={{ padding: 20 }}>
               <Title level={4} style={{ marginTop: 0 }}>
                 Thông tin giao hàng
               </Title>
-
 
               <Form
                 form={form}
@@ -202,9 +204,7 @@ export default function CheckoutPage() {
                 <Form.Item
                   label="Họ và tên"
                   name="fullName"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập họ và tên" },
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
                 >
                   <Input placeholder="Nguyễn Văn A" />
                 </Form.Item>
@@ -227,10 +227,7 @@ export default function CheckoutPage() {
                       label="Số điện thoại"
                       name="phone"
                       rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng nhập số điện thoại",
-                        },
+                        { required: true, message: "Vui lòng nhập số điện thoại" },
                         {
                           pattern: /^(0|\+84)\d{9,10}$/,
                           message: "Số điện thoại không hợp lệ",
@@ -250,7 +247,6 @@ export default function CheckoutPage() {
                       onChange={(e) => setShippingMethod(e.target.value)}
                     >
                       <Radio value="delivery">Giao tận nơi</Radio>
-                      <Radio value="pickup">Nhận tại cửa hàng</Radio>
                     </Radio.Group>
                   }
                   className="rounded-lg"
@@ -261,9 +257,7 @@ export default function CheckoutPage() {
                       <Form.Item
                         label="Địa chỉ"
                         name="address"
-                        rules={[
-                          { required: true, message: "Vui lòng nhập địa chỉ" },
-                        ]}
+                        rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
                       >
                         <Input placeholder="Số nhà, đường..." />
                       </Form.Item>
@@ -273,19 +267,14 @@ export default function CheckoutPage() {
                           <Form.Item
                             label="Tỉnh / thành"
                             name="province"
-                            rules={[
-                              { required: true, message: "Chọn tỉnh / thành" },
-                            ]}
+                            rules={[{ required: true, message: "Chọn tỉnh / thành" }]}
                           >
                             <Select
                               placeholder="Chọn tỉnh / thành"
                               options={PROVINCES}
                               allowClear
                               onChange={() =>
-                                form.setFieldsValue({
-                                  district: undefined,
-                                  ward: undefined,
-                                })
+                                form.setFieldsValue({ district: undefined, ward: undefined })
                               }
                             />
                           </Form.Item>
@@ -294,18 +283,14 @@ export default function CheckoutPage() {
                           <Form.Item
                             label="Quận / huyện"
                             name="district"
-                            rules={[
-                              { required: true, message: "Chọn quận / huyện" },
-                            ]}
+                            rules={[{ required: true, message: "Chọn quận / huyện" }]}
                           >
                             <Select
                               placeholder="Chọn quận / huyện"
                               options={DISTRICTS[provinceValue] || []}
                               disabled={!provinceValue}
                               allowClear
-                              onChange={() =>
-                                form.setFieldsValue({ ward: undefined })
-                              }
+                              onChange={() => form.setFieldsValue({ ward: undefined })}
                             />
                           </Form.Item>
                         </Col>
@@ -313,9 +298,7 @@ export default function CheckoutPage() {
                           <Form.Item
                             label="Phường / xã"
                             name="ward"
-                            rules={[
-                              { required: true, message: "Chọn phường / xã" },
-                            ]}
+                            rules={[{ required: true, message: "Chọn phường / xã" }]}
                           >
                             <Select
                               placeholder="Chọn phường / xã"
@@ -330,16 +313,25 @@ export default function CheckoutPage() {
                   ) : (
                     <div>
                       <Text type="secondary">
-                        Vui lòng đến cửa hàng TechRent (Quận 1, TP.HCM) để nhận
-                        thiết bị. Chúng tôi sẽ liên hệ xác nhận thời gian.
+                        Vui lòng đến cửa hàng TechRent (Quận 1, TP.HCM) để nhận thiết bị.
+                        Chúng tôi sẽ liên hệ xác nhận thời gian.
                       </Text>
                     </div>
                   )}
+
+                  {/* THỜI GIAN NHẬN HÀNG (áp dụng cho cả 2 phương thức) */}
+                  <Form.Item
+                    label="Thời gian nhận hàng"
+                    name="receiveAt"
+                    rules={[{ required: true, message: "Chọn thời gian nhận hàng" }]}
+                  >
+                    <DatePicker showTime style={{ width: "100%" }} />
+                  </Form.Item>
                 </Card>
 
                 <div className="mt-4">
                   <Button type="primary" size="large" htmlType="submit" block>
-                    Tiếp tục đến phương thức thanh toán
+                    Tiếp tục tới ký hợp đồng
                   </Button>
                 </div>
               </Form>
@@ -405,18 +397,21 @@ export default function CheckoutPage() {
                   <Text>Tạm tính</Text>
                   <Text strong>{formatVND(totals.subtotal)}</Text>
                 </div>
-                <div className="flex justify-between">
-                  <Text>Phí vận chuyển</Text>
-                  <Text strong>
-                    {totals.shipping ? formatVND(totals.shipping) : "—"}
-                  </Text>
-                </div>
+
+                
+
                 {totals.discount > 0 && (
                   <div className="flex justify-between">
                     <Text>Giảm giá ({couponApplied?.code})</Text>
                     <Text strong>-{formatVND(totals.discount)}</Text>
                   </div>
                 )}
+
+                {/* TIỀN CỌC */}
+                <div className="flex justify-between">
+                  <Text>Tiền cọc (30%)</Text>
+                  <Text strong>{formatVND(totals.deposit)}</Text>
+                </div>
               </div>
 
               <Divider />

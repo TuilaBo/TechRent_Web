@@ -4,18 +4,17 @@ import ProductCard from "../components/ProductCard.jsx";
 export default function Home() {
   return (
     <div className="space-y-12">
-      <Hero />
+      {/* Kéo Hero sát lên header: dịch lên 24–32px */}
+      <div className="-translate-y-6 md:-translate-y-8">
+        <Hero />
+      </div>
 
-      <section className="space-y-6">
+      {/* Bù lại khoảng đã kéo để tổng layout không bị hụt */}
+      <section className="space-y-6 translate-y-6 md:translate-y-8">
         <ProductCard />
-        {/* TODO: render CategoryGrid nếu bạn muốn */}
       </section>
 
-      <section className="space-y-6">
-        <div className="flex items-center justify-between">
-        </div>
-
-        {/* ProductCard tự render grid mock data */}
+      <section className="space-y-6 translate-y-6 md:translate-y-8">
         <ProductCard />
       </section>
     </div>
