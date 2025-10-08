@@ -22,15 +22,13 @@ export default function LayoutRoot() {
     };
 
     const calc = () => {
+      if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const h1 = headerRef.current?.getBoundingClientRect().height || 0;
-        const h2 = categoriesRef.current?.getBoundingClientRect().height || 0;
+        // Category hiện để static, không cộng vào biến stacked
+        const total = isStacked(headerRef.current) ? h1 : 0;
 
-        const total =
-          (isStacked(headerRef.current) ? h1 : 0) +
-          (isStacked(categoriesRef.current) ? h2 : 0);
-
-        // set biến toàn cục
+        document.documentElement.style.setProperty("--header-height", `${h1}px`);
         document.documentElement.style.setProperty("--stacked-header", `${total}px`);
       });
     };
@@ -45,22 +43,17 @@ export default function LayoutRoot() {
 
   return (
     <Layout className="min-h-screen bg-gray-50 text-gray-900">
-      <div ref={headerRef}>
+      <div ref={headerRef} className="header-wrapper">
         <Header />
       </div>
-      <div ref={categoriesRef}>
+
+      <div ref={categoriesRef} className="category-wrapper category-grid-wrap category-no-seam">
         <CategoryGrid />
       </div>
 
-      {/* DÙNG calc() TRỰC TIẾP Ở ĐÂY:
-         - Kéo hero lên 12px: subtract 12px
-         - Dùng max() để không bị âm khi chưa set biến (fallback 0) */}
-      <Content
-        style={{
-          paddingTop: "max(0px, calc(var(--stacked-header, 0px) - 20px))",
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Nội dung dưới sẽ bắt đầu ngay dưới header (nếu header sticky) */}
+      <Content style={{ paddingTop: "var(--stacked-header, 0px)" }}>
+        <div className="page-shell pt-0 pb-6">
           <Outlet />
         </div>
       </Content>

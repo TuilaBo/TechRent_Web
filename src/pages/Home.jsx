@@ -1,20 +1,23 @@
+// src/pages/Home.jsx
 import Hero from "../components/Hero.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 
 export default function Home() {
   return (
     <div className="space-y-12">
-      {/* Kéo Hero sát lên header: dịch lên 24–32px */}
-      <div className="-translate-y-6 md:-translate-y-8">
+      {/* Kéo banner lên bằng negative margin = - --stacked-header để loại gap */}
+      <div
+        className="full-bleed"
+        style={{ marginTop: `calc(-1 * var(--stacked-header, 0px) - 1px)` }} // Kết hợp -mt-px gốc, + calc dynamic
+      >
         <Hero />
       </div>
 
-      {/* Bù lại khoảng đã kéo để tổng layout không bị hụt */}
-      <section className="space-y-6 translate-y-6 md:translate-y-8">
+      {/* Các khối còn lại */}
+      <section className="space-y-6">
         <ProductCard />
       </section>
-
-      <section className="space-y-6 translate-y-6 md:translate-y-8">
+      <section className="space-y-6">
         <ProductCard />
       </section>
     </div>

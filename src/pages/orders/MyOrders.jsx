@@ -18,7 +18,12 @@ const MOCK = [
     id: "TR-241001-023",
     createdAt: "2025-10-01T11:45:00Z",
     items: [
-      { name: "DJI Mini 4 Pro", qty: 1, image: "https://images.unsplash.com/photo-1617814075185-99b7e8f1ce95?q=80&w=600&auto=format&fit=crop" },
+      {
+        name: "iPhone 15 Pro",
+        qty: 1,
+        image:
+          "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=600&auto=format&fit=crop",
+      },
     ],
     days: 1,
     total: 800000,
@@ -30,7 +35,12 @@ const MOCK = [
     id: "TR-240927-004",
     createdAt: "2025-09-27T09:00:00Z",
     items: [
-      { name: "Sony A7 IV", qty: 1, image: "https://images.unsplash.com/photo-1516726817505-f5ed825624d8?q=80&w=600&auto=format&fit=crop" },
+      {
+        name: "iPhone 14 Pro Max",
+        qty: 1,
+        image:
+          "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=600&auto=format&fit=crop",
+      },
     ],
     days: 2,
     total: 1600000,
@@ -43,7 +53,12 @@ const MOCK = [
     id: "TR-240920-017",
     createdAt: "2025-09-20T14:10:00Z",
     items: [
-      { name: "Meta Quest 3", qty: 1, image: "https://images.unsplash.com/photo-1707831960905-9df58c93b928?q=80&w=600&auto=format&fit=crop" },
+      {
+        name: "iPhone 13",
+        qty: 1,
+        image:
+          "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?q=80&w=600&auto=format&fit=crop",
+      },
     ],
     days: 7,
     total: 4900000,
@@ -55,8 +70,18 @@ const MOCK = [
     id: "TR-240918-001",
     createdAt: "2025-09-18T10:25:00Z",
     items: [
-      { name: 'Playstation 5 + TV 55" 4K', qty: 1, image: "https://images.unsplash.com/photo-1606813907291-76b553ee8a87?q=80&w=600&auto=format&fit=crop" },
-      { name: "Tay cầm DualSense", qty: 1, image: "https://images.unsplash.com/photo-1619690141313-b01f1d95d1a8?q=80&w=600&auto=format&fit=crop" },
+      {
+        name: "iPhone 12 + Phụ kiện",
+        qty: 1,
+        image:
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=600&auto=format&fit=crop",
+      },
+      {
+        name: "Ốp lưng MagSafe",
+        qty: 1,
+        image:
+          "https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=600&auto=format&fit=crop",
+      },
     ],
     days: 3,
     total: 3000000,
@@ -150,22 +175,23 @@ export default function MyOrders() {
       title: "Mã đơn",
       dataIndex: "id",
       key: "id",
-      width: 150,
+      width: 140, // Narrowed
       render: (v) => <Text strong>{v}</Text>,
       sorter: (a, b) => a.id.localeCompare(b.id),
     },
     {
       title: "Sản phẩm",
       key: "items",
-      width: 360,
+      width: 300, // Narrowed
       render: (_, r) => {
         const first = r.items[0];
         const extra = r.items.length > 1 ? ` +${r.items.length - 1} mục` : "";
         return (
-          <Space>
-            <Avatar shape="square" size={56} src={first?.image} />
+          <Space size="middle">
+            <Avatar shape="square" size={64} src={first?.image} style={{ borderRadius: 8 }} />
             <div>
-              <div style={{ fontWeight: 600, lineHeight: 1.2 }}>{first?.name}</div>
+              <Text strong style={{ fontSize: 16 }}>{first?.name}</Text>
+              <br />
               <Text type="secondary">SL: {first?.qty}{extra}</Text>
             </div>
           </Space>
@@ -176,7 +202,7 @@ export default function MyOrders() {
       title: "Ngày tạo",
       dataIndex: "createdAt",
       key: "createdAt",
-      width: 170,
+      width: 150, // Narrowed
       render: (v) => formatDateTime(v),
       sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
       defaultSortOrder: "descend",
@@ -186,7 +212,7 @@ export default function MyOrders() {
       dataIndex: "days",
       key: "days",
       align: "center",
-      width: 100,
+      width: 80, // Narrowed
       sorter: (a, b) => a.days - b.days,
     },
     {
@@ -194,7 +220,7 @@ export default function MyOrders() {
       dataIndex: "total",
       key: "total",
       align: "right",
-      width: 140,
+      width: 120, // Narrowed
       render: (v) => <Text strong>{formatVND(v)}</Text>,
       sorter: (a, b) => a.total - b.total,
     },
@@ -202,8 +228,8 @@ export default function MyOrders() {
       title: "Trạng thái",
       dataIndex: "orderStatus",
       key: "orderStatus",
-      width: 140,
-      render: (s) => <Tag color={ORDER_STATUS_MAP[s].color}>{ORDER_STATUS_MAP[s].label}</Tag>,
+      width: 120, // Narrowed
+      render: (s) => <Tag color={ORDER_STATUS_MAP[s].color} style={{ borderRadius: 20, padding: '0 12px' }}>{ORDER_STATUS_MAP[s].label}</Tag>,
       filters: Object.entries(ORDER_STATUS_MAP).map(([value, { label }]) => ({ text: label, value })),
       onFilter: (v, r) => r.orderStatus === v,
     },
@@ -211,8 +237,8 @@ export default function MyOrders() {
       title: "Thanh toán",
       dataIndex: "paymentStatus",
       key: "paymentStatus",
-      width: 170,
-      render: (s) => <Tag color={PAYMENT_STATUS_MAP[s].color}>{PAYMENT_STATUS_MAP[s].label}</Tag>,
+      width: 140, // Narrowed
+      render: (s) => <Tag color={PAYMENT_STATUS_MAP[s].color} style={{ borderRadius: 20, padding: '0 12px' }}>{PAYMENT_STATUS_MAP[s].label}</Tag>,
       filters: Object.entries(PAYMENT_STATUS_MAP).map(([value, { label }]) => ({ text: label, value })),
       onFilter: (v, r) => r.paymentStatus === v,
     },
@@ -220,29 +246,28 @@ export default function MyOrders() {
       title: "",
       key: "actions",
       fixed: "right",
-      width: 230,
+      width: 200, // Narrowed
       render: (_, r) => {
         const canPay = r.paymentStatus === "unpaid" && r.orderStatus !== "cancelled";
         const canCancel = ["pending", "confirmed"].includes(r.orderStatus);
         return (
-          <Space>
-            <Button shape="round" onClick={() => showDetail(r)} icon={<EyeOutlined />}>
+          <Space size="small">
+            <Button shape="round" onClick={() => showDetail(r)} icon={<EyeOutlined />} type="text" style={{ color: '#1890ff' }}>
               Xem
             </Button>
             <Button
               shape="round"
               type="primary"
-              ghost
               disabled={!canPay}
               icon={<CreditCardOutlined />}
               onClick={() => message.info(`Thanh toán đơn ${r.id}`)}
+              style={{ background: 'linear-gradient(to right, #4da6ff, #1677ff)', border: 'none' }}
             >
               Thanh toán
             </Button>
             <Button
               shape="round"
               danger
-              ghost
               disabled={!canCancel}
               icon={<StopOutlined />}
               onClick={() => message.warn(`Yêu cầu hủy đơn ${r.id}`)}
@@ -260,26 +285,26 @@ export default function MyOrders() {
           height: "calc(100vh - var(--stacked-header,128px))",
           marginTop: "-24px",
           marginBottom: "-24px",
-          background: "#fff",
+          background: "#f0f2f5", // Softer background for modern feel
         }}
       >
-        <div className="h-full flex flex-col max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-4">
-            <Title level={3} style={{ margin: 0 }}>Đơn thuê của tôi</Title>
+        <div className="h-full flex flex-col max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 bg-white rounded-xl shadow-lg overflow-hidden"> {/* Changed to max-w-5xl for narrower width */}
+          <div className="py-6 border-b border-gray-200">
+            <Title level={3} style={{ margin: 0, fontFamily: "'Inter', sans-serif" }}>Đơn thuê của tôi</Title>
             <Text type="secondary">Theo dõi trạng thái đơn, thanh toán và tải hợp đồng.</Text>
           </div>
 
-          <div className="flex items-center justify-between pb-2">
-            <Space wrap>
+          <div className="flex items-center justify-between py-4">
+            <Space wrap size="middle">
               <Input
                 allowClear
                 prefix={<SearchOutlined />}
                 placeholder="Tìm theo mã đơn, tên thiết bị…"
-                style={{ width: 300 }}
+                style={{ width: 320, borderRadius: 999, padding: '8px 16px' }} // Pill shape for modern input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              <RangePicker onChange={setDateRange} />
+              <RangePicker onChange={setDateRange} style={{ borderRadius: 8 }} />
               <Dropdown
                 trigger={["click"]}
                 overlay={
@@ -292,11 +317,11 @@ export default function MyOrders() {
                   />
                 }
               >
-                <Button shape="round" icon={<FilterOutlined />}>
+                <Button shape="round" icon={<FilterOutlined />} style={{ borderRadius: 999 }}>
                   {statusFilter ? `Lọc: ${ORDER_STATUS_MAP[statusFilter].label}` : "Lọc trạng thái"}
                 </Button>
               </Dropdown>
-              <Button shape="round" icon={<ReloadOutlined />} onClick={refresh} loading={loading}>
+              <Button shape="round" icon={<ReloadOutlined />} onClick={refresh} loading={loading} style={{ borderRadius: 999 }}>
                 Tải lại
               </Button>
             </Space>
@@ -315,10 +340,10 @@ export default function MyOrders() {
                 loading={loading}
                 size="middle"
                 bordered={false}
-                className="rounded-xl shadow-sm"
+                className="modern-table"
                 sticky
                 pagination={{ pageSize: 8, showSizeChanger: true, position: ["bottomRight"] }}
-                scroll={{ x: 1024 }}
+                scroll={{ x: 900 }} // Reduced scroll width to match narrower layout
               />
             )}
           </div>
@@ -328,20 +353,21 @@ export default function MyOrders() {
       {/* Drawer chi tiết đơn */}
       <Drawer
         title={current ? `Chi tiết đơn ${current.id}` : "Chi tiết đơn"}
-        width={720}
+        width={600} // Narrowed Drawer width
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
+        styles={{ body: { padding: 24, background: '#f9fafb' } }} // Softer background
       >
         {current && (
           <>
-            <Descriptions bordered column={1} size="small">
+            <Descriptions bordered column={1} size="middle" className="mb-4">
               <Descriptions.Item label="Trạng thái đơn">
-                <Tag color={ORDER_STATUS_MAP[current.orderStatus].color}>
+                <Tag color={ORDER_STATUS_MAP[current.orderStatus].color} style={{ borderRadius: 20, padding: '0 12px' }}>
                   {ORDER_STATUS_MAP[current.orderStatus].label}
                 </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái thanh toán">
-                <Tag color={PAYMENT_STATUS_MAP[current.paymentStatus].color}>
+                <Tag color={PAYMENT_STATUS_MAP[current.paymentStatus].color} style={{ borderRadius: 20, padding: '0 12px' }}>
                   {PAYMENT_STATUS_MAP[current.paymentStatus].label}
                 </Tag>
               </Descriptions.Item>
@@ -368,28 +394,30 @@ export default function MyOrders() {
 
             <Divider />
 
-            <Title level={5} style={{ marginTop: 0 }}>Thiết bị thuê</Title>
+            <Title level={4} style={{ marginTop: 0, fontFamily: "'Inter', sans-serif" }}>Thiết bị thuê</Title>
             <List
               itemLayout="horizontal"
               dataSource={current.items}
               renderItem={(it) => (
-                <List.Item>
+                <List.Item style={{ padding: '12px 0', borderBottom: '1px solid #f0f0f0' }}>
                   <List.Item.Meta
-                    avatar={<Avatar shape="square" size={64} src={it.image} />}
-                    title={<Text strong>{it.name}</Text>}
+                    avatar={<Avatar shape="square" size={72} src={it.image} style={{ borderRadius: 8 }} />}
+                    title={<Text strong style={{ fontSize: 16 }}>{it.name}</Text>}
                     description={<Text type="secondary">Số lượng: {it.qty}</Text>}
                   />
                 </List.Item>
               )}
             />
 
-            <Space style={{ marginTop: 12 }}>
+            <Space style={{ marginTop: 24 }}>
               <Button
                 type="primary"
+                size="large"
                 onClick={() => {
                   if (current.contractUrl) window.open(current.contractUrl, "_blank");
                   else message.info("Chưa có hợp đồng cho đơn này.");
                 }}
+                style={{ borderRadius: 8, padding: '0 24px' }}
               >
                 Tải hợp đồng thuê
               </Button>
@@ -399,11 +427,22 @@ export default function MyOrders() {
       </Drawer>
 
       <style>{`
-        .ant-table-wrapper.rounded-xl .ant-table {
-          border-radius: 14px;
+        .modern-table .ant-table-thead > tr > th {
+          background: #fafafa;
+          font-weight: 600;
+          color: #333;
+          border-bottom: 2px solid #f0f0f0;
         }
-        .ant-table-wrapper.rounded-xl .ant-table-container table > tbody > tr:hover > td {
-          background: #fafcff;
+        .modern-table .ant-table-tbody > tr > td {
+          border-bottom: 1px solid #f0f0f0;
+          transition: background 0.3s;
+        }
+        .modern-table .ant-table-tbody > tr:hover > td {
+          background: #f6faff !important;
+        }
+        .ant-drawer-content {
+          border-radius: 12px 0 0 12px;
+          overflow: hidden;
         }
       `}</style>
     </>
